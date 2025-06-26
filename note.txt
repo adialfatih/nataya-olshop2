@@ -1,0 +1,102 @@
+Controler Used  :   1. Login
+                    2. Beranda
+                    3. Notfounde
+                    4. Proses
+
+
+View Used       :   1. View/login_form
+                    2. View/beranda_view
+                    3. view/notfoundview
+                    4. view/part/main_js
+                    5. view/part/main_head
+                    6. view/part/left_sidebar
+                    7. view/part/left_sidebar_backup
+
+
+
+Models Used     :   1. Login_model
+                    2. Data_Model
+
+
+
+
+
+1. konveksi turun -> harga jahitan
+2. kurang warna 
+PROSES PENCATATAN BAHAN
+
+TOYOBO-YARD
+POLIMICRO-METER
+
+
+25 roll = 2000yard
+
+
+
+a1   = 90y
+a2 = 110y
+a3 = 95y
+
+
+penerimaan barang -> kirim ke konveksi 
+
+stok kain - aset kain di catet
+kain ini di kirim ke konveksi 
+
+
+misal kain di kirim harunys bayar 20jt kemudian barang nya jadi dengan harga 40 jt berarti helmi masih ada utang 20jt 
+kemudian helmi kirim barang lagi 10
+
+
+di kirim kain sekian gulung/yard jadinya berapa potong
+
+data produksi
+proses kirim bahan dengan data yang sudah ditentukan. x-berapa potong, xl-berapa potong
+kemudian ketika data kembali compare apakah sudah sesuai atau belum
+buatkan juga aplikasi produksi untuk konveksi
+
+
+PEMBAYARAN SUPPLIER ITU BISA KELEBIHAN 
+INTINYA MASUKAN HUTANG PIUTANG SUPPLIER
+
+
+
+
+
+
+
+
+
+CREATE VIEW v_pengeluaran
+AS 
+SELECT 
+stok_produk_keluar.id_outstok,
+stok_produk_keluar.user_name,
+stok_produk_keluar.nama_tujuan,
+stok_produk_keluar.tgl_out,
+stok_produk_keluar.tgl_input,
+stok_produk_keluar.tujuan,
+stok_produk_keluar.send_code,
+stok_produk_keluar.status_lunas,
+stok_produk_keluar.nilai_tagihan,
+stok_produk_keluar.status_kirim,
+stok_produk_keluar.ket,
+stok_produk_keluar_barang.id_spkb,
+stok_produk_keluar_barang.id_bar,
+stok_produk_keluar_barang.id_produk,
+stok_produk_keluar_barang.kode_bar1,
+stok_produk_keluar_barang.harga_produk,
+stok_produk_keluar_barang.harga_jual,
+stok_produk_keluar_barang.code_sha
+
+FROM stok_produk_keluar,stok_produk_keluar_barang
+WHERE stok_produk_keluar.send_code=stok_produk_keluar_barang.send_code
+
+
+//update perubahan database
+
+ALTER TABLE `data_produk_stok` ADD `loc` VARCHAR(30) NOT NULL DEFAULT 'Toko' AFTER `code_sha`;
+ALTER TABLE `data_produk_stok_masuk` ADD `lokasi` VARCHAR(10) NOT NULL DEFAULT 'Toko' AFTER `codeinput`;
+add table newtb_mutasi
+add table newtb_mutasi_data
+ALTER TABLE `newtb_mutasi_data` ADD `jmldatas` INT(11) NOT NULL AFTER `datas`;
