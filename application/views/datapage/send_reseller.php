@@ -150,7 +150,7 @@
                                                 <div style="width:100%;display:flex;flex-direction:column;">
                                                     <label class="form-label">Kode Produk</label>
                                                     <div class="form-label">
-                                                        <div class="autoComplete_wrapper">
+                                                        <div class="autoComplete_wrapper" style="width:100%;">
                                                             <input id="autoComplete" type="search" dir="ltr" spellcheck=false autocorrect="off" autocomplete="off" name="codeproduk" autocapitalize="off" required>
                                                         </div>
                                                     </div>

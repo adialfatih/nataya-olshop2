@@ -100,3 +100,8 @@ ALTER TABLE `data_produk_stok_masuk` ADD `lokasi` VARCHAR(10) NOT NULL DEFAULT '
 add table newtb_mutasi
 add table newtb_mutasi_data
 ALTER TABLE `newtb_mutasi_data` ADD `jmldatas` INT(11) NOT NULL AFTER `datas`;
+
+
+NEW
+UPDATE `data_produk_detil` SET `warna_model` = 'OLIVE' WHERE `data_produk_detil`.`id_produkdetil` = 653;
+add table amaster_harga

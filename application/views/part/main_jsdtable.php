@@ -24,7 +24,8 @@
 		<?php  if(!empty($autocomplet)) { 
 			$ar = array();
 			foreach($kode_bar->result() as $kd){
-				$ds = '"'.$kd->kode_bar.'"';
+				$testing = $kd->nama_produk." - ".$kd->warna_model." - ".$kd->kode_bar."";
+				$ds = '"'.$testing.'"';
 				$ar[] = $ds;
 			}
 			$stok_im = implode(",",$ar);
@@ -88,7 +89,7 @@
 				$.ajax({
 					url:"<?=base_url();?>proses2/carijumlahstok",
 					type: "POST",
-					data: {"id" : kodebar1},
+					data: {"id" : kodebar1, "kodebar" : kodebar, "ukuran" : ukuran},
 					cache: false,
 					success: function(dataResult){
 						var dataResult = JSON.parse(dataResult);
@@ -322,7 +323,8 @@
 									$('#addProdukResellerDis').hide();
 									$('#addProdukReseller').show();
 									loadTableKirim(sendCode);
-									//updateReseller();
+									$('#jumlahkirim').val('');
+									cariKodeUkuran();
 								} else {
 									Swal.fire('Gagal Menyimpan', data.psn, 'warning');
 								}

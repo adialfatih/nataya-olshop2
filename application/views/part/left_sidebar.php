@@ -80,8 +80,7 @@ $url = $this->uri->segment(1); $url2 = $this->uri->segment(2);
 							</a>
 							<ul class="submenu">
 								<li><a href="<?=base_url('product/data-stok');?>" class="<?=$url2=='data-stok'?'active':'';?>">Stok Produk</a></li>
-								<li><a href="<?=base_url('produk/data-stok-in');?>" class="<?=$url2=='data-stok-in'?'active':'';?>">Stok Masuk</a></li>
-								<li><a href="<?=base_url('produk/data-stok-out');?>" class="<?=$url2=='data-stok-out'?'active':'';?>">Stok Keluar</a></li>
+								
 								<li><a href="<?=base_url('product');?>" class="<?=$url2=='' && $url=='product' ?'active':'';?>">Data Produk</a></li>
 							</ul>
 						</li>
@@ -111,6 +110,12 @@ $url = $this->uri->segment(1); $url2 = $this->uri->segment(2);
 							</a>
 							
 						</li> -->
+						<li>
+							<a href="<?=base_url('tabel-harga');?>" class="dropdown-toggle no-arrow <?=$url=='tabel-harga'?'active':'';?>">
+								<span class="micon bi bi-currency-exchange"></span
+								><span class="mtext">Tabel Harga</span>
+							</a>
+						</li>
 						<li>
 							<a href="<?=base_url('akses-users');?>" class="dropdown-toggle no-arrow <?=$url=='akses-users'?'active':'';?>">
 								<span class="micon fa fa-user-circle"></span

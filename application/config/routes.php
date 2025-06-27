@@ -89,6 +89,8 @@ $route['save-reseller-bayar'] = 'proses2/savebayarresel';
 $route['reseller/tagihan/nota/(:any)'] = 'beranda/reseller2';
 $route['reseller/data/tagihan/(:any)'] = 'reseller2/datas';
 
+$route['tabel-harga'] = 'newtable/hargabarang';
+
 
 
 $route['signature'] = 'signature/index';

@@ -508,7 +508,7 @@ function showKodeKain(){
 
 function showKodeProduk(){
 
-  $data = $this->db->query("SELECT DISTINCT kode_bar FROM data_produk_detil ORDER BY kode_bar ASC");
+  $data = $this->db->query("SELECT nama_produk,warna_model,kode_bar FROM data_produk_detil GROUP BY kode_bar ORDER BY kode_bar ASC");
 
   return $data;
 

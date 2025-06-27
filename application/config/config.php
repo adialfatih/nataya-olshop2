@@ -1,7 +1,7 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-$config['base_url'] = 'https://nataya.my.id/';
+$config['base_url'] = 'http://localhost:8080/nataya/';
 
 $config['index_page'] = '';
 

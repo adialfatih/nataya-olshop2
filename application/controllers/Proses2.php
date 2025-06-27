@@ -149,7 +149,9 @@ class Proses2 extends CI_Controller
     } //end function send reseller
 
     function cekkodeProduk(){
-        $id = $this->input->post('id', TRUE);
+        $id2 = $this->input->post('id', TRUE);
+        $xx = explode(' - ', $id2);
+        $id = $xx[2];
         $cek = $this->data_model->get_byid('data_produk_detil', ['kode_bar'=>$id])->num_rows();
         if($cek == 0){
             echo json_encode(array("statusCode"=>503, "psn"=>"Kode tidak ditemukan!!"));
@@ -220,13 +222,19 @@ class Proses2 extends CI_Controller
         }
     }
     function carijumlahstok(){
-        $id = $this->input->post('id', TRUE);
+        //$id = $this->input->post('id', TRUE);
+        $xx = $this->input->post('kodebar', TRUE);
+        $uk = $this->input->post('ukuran', TRUE);
+        $pp = explode(' - ', $xx);
+        $id = $pp[2]."-".$uk;
         $jumlah = $this->data_model->get_byid('data_produk_stok', ['kode_bar1'=>$id])->num_rows();
         echo json_encode(array("statusCode"=>200, "jumlah"=>$jumlah));
     }//end function carijumlahstok
 
     function tambahkanproduk(){
-        $kodebar = $this->input->post('kodebar', TRUE);
+        $xx = $this->input->post('kodebar', TRUE);
+        $pp = explode(' - ', $xx);
+        $kodebar = $pp[2];
         $ukuran = $this->input->post('ukuran', TRUE);
         $jumlahkirim = $this->input->post('jumlahkirim', TRUE);
         $sendCode = $this->input->post('sendCode', TRUE);
@@ -237,20 +245,31 @@ class Proses2 extends CI_Controller
                 $cekStok = $this->data_model->get_byid('data_produk_stok', ['kode_bar1'=>$kode_bar1]);
                 if($cekStok->num_rows() > 0){
                     if(intval($cekStok->num_rows()) >= intval($jumlahkirim)){
-                        $datakirim = $this->db->query("SELECT * FROM data_produk_stok WHERE kode_bar1 = '$kode_bar1' ORDER BY id_bar LIMIT $jumlahkirim")->result();
-                        foreach($datakirim as $val){
-                            $id_bar = $val->id_bar;
-                            $id_produk = $val->id_produk;
-                            $kode_bar1 = $val->kode_bar1;
-                            $harga_produk = $val->harga_produk;
-                            $harga_jual = $val->harga_jual;
-                            $code_sha = $val->code_sha;
-                            $this->data_model->saved('stok_produk_keluar_barang',['send_code'=>$sendCode,'id_bar'=>$id_bar,'id_produk'=>$id_produk,'kode_bar1'=>$kode_bar1,'harga_produk'=>$harga_produk,'harga_jual'=>$harga_jual,'code_sha'=>$code_sha]);
-                            $this->db->query("DELETE FROM data_produk_stok WHERE id_bar = '$id_bar'");
+                        $cek_harga = $this->db->query("SELECT kode_bar1,harga_hpp,harga_jual FROM amaster_harga WHERE kode_bar1='$kode_bar1'");
+                        if($cek_harga->num_rows() == 1){
+                            $newharga_hpp = $cek_harga->row('harga_hpp');
+                            $newharga_jual = $cek_harga->row('harga_jual');
+                            if($newharga_jual > 0){
+                            $datakirim = $this->db->query("SELECT * FROM data_produk_stok WHERE kode_bar1 = '$kode_bar1' ORDER BY id_bar LIMIT $jumlahkirim")->result();
+                            foreach($datakirim as $val){
+                                $id_bar = $val->id_bar;
+                                $id_produk = $val->id_produk;
+                                $kode_bar1 = $val->kode_bar1;
+                                $harga_produk = $val->harga_produk;
+                                $harga_jual = $val->harga_jual;
+                                $code_sha = $val->code_sha;
+                                $this->data_model->saved('stok_produk_keluar_barang',['send_code'=>$sendCode,'id_bar'=>$id_bar,'id_produk'=>$id_produk,'kode_bar1'=>$kode_bar1,'harga_produk'=>$harga_produk,'harga_jual'=>$harga_jual,'code_sha'=>$code_sha]);
+                                $this->db->query("DELETE FROM data_produk_stok WHERE id_bar = '$id_bar'");
+                            }
+                            $nilai_tagihan = $this->db->query("SELECT SUM(harga_jual) AS nilai_tagihan FROM stok_produk_keluar_barang WHERE send_code = '$sendCode'")->row("nilai_tagihan");
+                            $this->db->query("UPDATE stok_produk_keluar SET nilai_tagihan = '$nilai_tagihan' WHERE send_code = '$sendCode'");
+                            echo json_encode(array("statusCode"=>200, "psn"=>"Berhasil Menambahkan Produk"));
+                            } else {
+                                echo json_encode(array("statusCode"=>503, "psn"=>"Silahkan update harga terlebih dahulu di tabel harga"));
+                            }    
+                        } else {
+                            echo json_encode(array("statusCode"=>503, "psn"=>"Silahkan update harga terlebih dahulu di tabel harga"));
                         }
-                        $nilai_tagihan = $this->db->query("SELECT SUM(harga_jual) AS nilai_tagihan FROM stok_produk_keluar_barang WHERE send_code = '$sendCode'")->row("nilai_tagihan");
-                        $this->db->query("UPDATE stok_produk_keluar SET nilai_tagihan = '$nilai_tagihan' WHERE send_code = '$sendCode'");
-                        echo json_encode(array("statusCode"=>200, "psn"=>"Berhasil Menambahkan Produk"));
                     } else {
                         echo json_encode(array("statusCode"=>503, "psn"=>"Anda mengirim melebihi jumlah stok yang tersedia."));
                     }
