@@ -20,6 +20,7 @@ $route['product/(:any)/id/(:any)'] = 'beranda/product_byid';
 $route['product/(:any)/id/(:any)/(:any)'] = 'beranda/product_byid';
 $route['product/update/(:any)'] = 'beranda/product_update';
 $route['distributor'] = 'beranda/distributor';
+$route['hutang-agen/(:any)'] = 'Agen/hutang_agen';
 $route['reseller'] = 'beranda/reseller';
 $route['data-stok'] = 'beranda/data_stok';
 $route['data-stok/toko'] = 'beranda/data_stok';

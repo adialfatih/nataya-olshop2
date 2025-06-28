@@ -149,9 +149,9 @@ class Proses2 extends CI_Controller
     } //end function send reseller
 
     function cekkodeProduk(){
-        $id2 = $this->input->post('id', TRUE);
-        $xx = explode(' - ', $id2);
-        $id = $xx[2];
+        $id = $this->input->post('id', TRUE);
+        $xx = explode(' - ', $id);
+        $id3 = $xx[2];
         $cek = $this->data_model->get_byid('data_produk_detil', ['kode_bar'=>$id])->num_rows();
         if($cek == 0){
             echo json_encode(array("statusCode"=>503, "psn"=>"Kode tidak ditemukan!!"));
@@ -226,7 +226,7 @@ class Proses2 extends CI_Controller
         $xx = $this->input->post('kodebar', TRUE);
         $uk = $this->input->post('ukuran', TRUE);
         $pp = explode(' - ', $xx);
-        $id = $pp[2]."-".$uk;
+        $id = $xx."-".$uk;
         $jumlah = $this->data_model->get_byid('data_produk_stok', ['kode_bar1'=>$id])->num_rows();
         echo json_encode(array("statusCode"=>200, "jumlah"=>$jumlah));
     }//end function carijumlahstok
@@ -234,7 +234,8 @@ class Proses2 extends CI_Controller
     function tambahkanproduk(){
         $xx = $this->input->post('kodebar', TRUE);
         $pp = explode(' - ', $xx);
-        $kodebar = $pp[2];
+        $kodebar2 = $pp[2];
+        $kodebar = $this->input->post('kodebar', TRUE);
         $ukuran = $this->input->post('ukuran', TRUE);
         $jumlahkirim = $this->input->post('jumlahkirim', TRUE);
         $sendCode = $this->input->post('sendCode', TRUE);
@@ -342,6 +343,8 @@ class Proses2 extends CI_Controller
                 </thead><tbody>
             <?php }
             $no=1;
+            $total_pcs = 0;
+            $total_tagihan = 0;
             foreach($kode_bar1 as $val){
                 $idid = $val->kode_bar1."".$id;
                 $jmlkirim = $this->db->query("SELECT * FROM stok_produk_keluar_barang WHERE send_code = '$id' AND kode_bar1 = '$val->kode_bar1'")->num_rows();
@@ -358,7 +361,16 @@ class Proses2 extends CI_Controller
                 ?><td><a href="javascript:void(0)" onclick="hapust('<?=$val->kode_bar1;?>','<?=$id;?>')"><i class='fa fa-trash text-danger'></i></a></td><?php
                 //echo "<td><a href='javascript:void(0)'><i class='fa fa-trash text-danger'></i></a></td>";
                 echo "</tr>";
+                $total_pcs+=$jmlkirim;
+                $total_tagihan+=$harga;
             }
+            echo "<tr>";
+            echo "<td colspan='3'><strong>Total</strong></td>";
+            echo "<td><strong>".number_format($total_pcs)."</strong></td>";
+            echo "<td></td>";
+            echo "<td><strong>Rp. ".number_format($total_tagihan)."</strong></td>";
+            echo "<td></td>";
+            echo "</tr>";
             if($tes=="oke"){} else {
             echo "</tbody></table>"; }
         } else {

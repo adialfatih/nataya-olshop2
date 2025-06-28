@@ -63,8 +63,10 @@
 									<tr>
 										<th class="table-plus datatable-nosort">No</th>
 										<th>Nama Distributor</th>
-										<th>No Telp/WhatsApp</th>
-										<th>Alamat</th>
+										<th>Nota Belum Dibayar</th>
+										<th>Total Hutang</th>
+										<th>Pembayaran</th>
+										<th>Sisa Hutang</th>
 										<th class="datatable-nosort">Action</th>
 									</tr>
 								</thead>
@@ -72,22 +74,42 @@
                                     <?php
                                     if($dist->num_rows() > 0){
                                         $no=1;
+                                        $_ttl_nota=0;
+                                        $_ttl_htg=0;
+                                        $_ttl_byr=0;
+                                        $_ttl_sisa=0;
                                         foreach($dist->result() as $val){
                                         $id = $val->id_dis;
+                                        $shaid = sha1($id);
+                                        $nmdis = $val->nama_distributor;
+                                        $nota  = $this->db->query("SELECT COUNT(id_outstok) AS jml, SUM(nilai_tagihan) AS total FROM stok_produk_keluar WHERE nama_tujuan = '$nmdis' AND tujuan='Agen' AND status_lunas = 'Belum Lunas'")->row_array();
+                                        $bayarr  = $this->db->query("SELECT SUM(nominal_bayar) AS total FROM hutang_agen_bayar WHERE nama_agen = '$nmdis' ")->row("total");
+                                        $sisa_hutang = $nota['total'] - $bayarr;
+                                        $_ttl_nota += $nota['jml'];
+                                        $_ttl_htg += $nota['total'];
+                                        $_ttl_byr += $bayarr;
+                                        $_ttl_sisa += $sisa_hutang;
                                     ?>
                                     <tr>
                                         <td><?=$no;?></td>
-                                        <td><?=$val->nama_distributor;?></td>
-                                        <td>+62<?=$val->notelp;?></td>
-                                        <td><?=$val->alamat;?></td>
+                                        <td><?=$nmdis;?></td>
+                                        <td><?=$nota['jml']<1 ? '-':'<font style="color:red;">'.$nota['jml'].'</font>';?></td>
+                                        <td><?=$nota['total']<1 ? '-':'Rp. '.number_format($nota['total'],0,',','.');?></td>
+                                        <td><?=$bayarr<1 ? '-':'Rp. '.number_format($bayarr,0,',','.');?></td>
+                                        <td><?=$sisa_hutang<1 ? '-':'Rp. '.number_format($sisa_hutang,0,',','.');?></td>
+                                        
                                         <td>
                                             <div class="dropdown">
                                                 <a class="btn btn-link font-24 p-0 line-height-1 no-arrow dropdown-toggle" href="#" role="button" data-toggle="dropdown">
                                                             <i class="dw dw-more"></i>
                                                 </a>
                                                 <div class="dropdown-menu dropdown-menu-right dropdown-menu-icon-list">
+                                                    <a class="dropdown-item" href="<?=base_url('hutang-agen/'.$shaid.'');?>"><i class="dw dw-search"></i> View</a>
+                                                    <a class="dropdown-item" href="javascript:void(0);">
+                                                        <i class="dw dw-add"></i> Input Pembayaran
+                                                    </a>
                                                     <a class="dropdown-item" href="javascript:void(0);" onclick="edit('<?=$id;?>','<?=$val->nama_distributor;?>','<?=$val->notelp;?>','<?=$val->alamat;?>')" data-toggle="modal" data-target="#modals">
-                                                        <i class="dw dw-edit"></i> Edit
+                                                        <i class="dw dw-edit"></i> Edit Agen
                                                     </a>
                                                     <a class="dropdown-item" href="javascript:void(0);" onclick="del('Distributor','<?=$id;?>','<?=$val->nama_distributor;?>')">
                                                         <i class="dw dw-trash" style="color:#c90e0e;"></i> Delete
@@ -99,6 +121,14 @@
                                     <?php
                                             $no++;
                                         }
+                                        echo "<tr>";
+                                        echo "<td colspan='2'><strong>Total</strong></td>";
+                                        echo "<td><strong>".$_ttl_nota."</strong></td>";
+                                        echo "<td><strong>rp. ".number_format($_ttl_htg,0,',','.')."</strong></td>";
+                                        echo "<td><strong>Rp. ".number_format($_ttl_byr,0,',','.')."</strong></td>";
+                                        echo "<td><strong>Rp. ".number_format($_ttl_sisa,0,',','.')."</strong></td>";
+                                        echo "<td></td>";
+                                        echo "</tr>";
                                     } else {
                                         echo "<tr><td colspan='5'>Anda belum memiliki distributor</td></tr>";
                                     }

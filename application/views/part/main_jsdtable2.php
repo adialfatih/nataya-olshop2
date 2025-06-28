@@ -24,10 +24,20 @@
                         selection: (event) => {
                             const selection = event.detail.selection.value;
                             autoCompleteJS.input.value = selection;
-							$('#notifStok').html('Loading...');
+							tampilkanDataStok(selection);
+                        }
+                    }
+                }
+            });
+			</script>
+		<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.0/dist/sweetalert2.all.min.js" integrity="sha256-IW9RTty6djbi3+dyypxajC14pE6ZrP53DLfY9w40Xn4=" crossorigin="anonymous"></script>
+		<!-- Google Tag Manager (noscript) -->
+		<script>
+			function tampilkanDataStok(id){
+				$('#notifStok').html('Loading...');
                             $.ajax({
                                 url:"<?=base_url();?>proses2/cekjmlstok",
-                                type: "POST", data: {"id" : selection},
+                                type: "POST", data: {"id" : id},
                                 cache: false,
                                 success: function(dataResult){
                                     var data = JSON.parse(dataResult);
@@ -40,15 +50,7 @@
                                     }
                                 }
                             });
-                        }
-                    }
-                }
-            });
-			</script>
-		<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.0/dist/sweetalert2.all.min.js" integrity="sha256-IW9RTty6djbi3+dyypxajC14pE6ZrP53DLfY9w40Xn4=" crossorigin="anonymous"></script>
-		<!-- Google Tag Manager (noscript) -->
-		<script>
-			
+			}
 			function formatAngka(input) {
 				let value = input.value.replace(/\D/g, '');
 				value = value.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
@@ -205,8 +207,8 @@
 								if(data.statusCode==200){
 									swal.fire('Berhasil Menyimpan', 'Berhasil menyimpan', 'success').then(function(){
 										loadTableKirim(sendCode);
-										$('#autoComplete').val('');
 										$('#jumlahProdukKirim').val('');
+										tampilkanDataStok(kodebarang);
 									});
 								} else {
 									Swal.fire('Gagal Menyimpan', data.psn, 'warning');
@@ -222,6 +224,7 @@
 				
 			}
 			$( "#addProdukCustomer" ).on( "click", function() {
+				console.log('klik oke yes');
 				const namaCustomer = $('#namaCustomer').val();
 				const tglKirim = $('#tglKirim').val();
 				const sendCode = $('#sendCode').val();
@@ -243,10 +246,9 @@
 									Swal.fire('Berhasil Menyimpan', data.psn, 'success');
 									$('#addProdukResellerDis').hide();
 									$('#addProdukReseller').show();
-                                    $('#autoComplete').val('');
                                     $('#jumlahProdukKirim').val('');
-                                    $('#notifStok').html('');
                                     loadTableKirim(sendCode);
+									tampilkanDataStok(cariProduk);
 								} else {
 									Swal.fire('Gagal Menyimpan', data.psn, 'warning');
 								}

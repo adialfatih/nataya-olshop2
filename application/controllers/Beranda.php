@@ -165,7 +165,7 @@ function distributor(){
         $this->load->view('part/main_head', $data);
         $this->load->view('part/left_sidebar', $data);
         $this->load->view('datapage/distributor_view', $data);
-        $this->load->view('part/main_js');
+        $this->load->view('part/main_js_dis');
     } else {
         $this->load->view('blok_view');
     }

@@ -81,6 +81,7 @@
                             <table class="data-table table stripe hover nowrap" id="table1">
 								<thead>
 									<tr>
+                                        <th>No</th>
                                         <th>SJ</th>
 										<th>TUJUAN</th>
 										<th>NAMA PENERIMA</th>

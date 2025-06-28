@@ -180,6 +180,7 @@ class Showtable extends CI_Controller
                 }
                 ?>
                 <tr>
+                    <td><?=$no;?></td>
                     <td><?=$val->no_sj;?></td>
                     <td><?=$val->tujuan;?></td>
                     <td><?=$val->nama_tujuan;?></td>

@@ -25,7 +25,7 @@
 			$ar = array();
 			foreach($kode_bar->result() as $kd){
 				$testing = $kd->nama_produk." - ".$kd->warna_model." - ".$kd->kode_bar."";
-				$ds = '"'.$testing.'"';
+				$ds = '"'.$kd->kode_bar.'"';
 				$ar[] = $ds;
 			}
 			$stok_im = implode(",",$ar);

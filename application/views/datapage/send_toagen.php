@@ -133,6 +133,7 @@
                                         <th>Kode</th>
                                         <th>Produk</th>
                                         <th>Jumlah Kirim</th>
+                                        <th>Harga</th>
                                         <th>Total Harga</th>
                                         <th>Hapus</th>
                                     </tr>
@@ -151,11 +152,12 @@
                                         <td>
                                             <input type="text" id="jumlahProdukKirim" oninput="formatAngka(this)" class="form-control" placeholder="Masukan jumlah">
                                         </td>
-                                        <td>0</td>
+                                        <td></td>
+                                        <td></td>
                                         <td></td>
                                     </tr>
                                     <tr>
-                                        <td colspan="6">
+                                        <td colspan="7">
                                             <button type="submit" class="btn btn-success" onclick="addProdukToAgen()">+ Tambah Produk</button>
                                             <?php if($send_code1 == "null"){} else { ?>
                                             <button type="button" class="btn btn-primary" onclick="addProdukToAgen2()">Simpan</button> <?php } ?>
