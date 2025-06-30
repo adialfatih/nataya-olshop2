@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Data Tagihan</title>
+    <title>Data Tagihan Agen</title>
     <style>
         * {
             margin: 0;
@@ -178,20 +178,20 @@
 <body>
     <?php
     $uri = $this->uri->segment(4);
-    $id_res = intval($uri) - 98761;
-    $cek_res = $this->data_model->get_byid('data_reseller', ['sha1(id_res)'=>$uri]);
+    //echo $uri;
+    $cek_res = $this->data_model->get_byid('data_distributor', ['sha1(id_dis)'=>$uri]);
     if($cek_res->num_rows() == 1){
-    $nama_res = $cek_res->row('nama_reseller');
-    $id_res2 = $cek_res->row('id_res');
-    $ary = $this->db->query("SELECT SUM(nilai_tagihan) AS jml FROM stok_produk_keluar WHERE nama_tujuan='$nama_res' AND tujuan='Reseller'")->row("jml");
-    $nilai_bayar = $this->db->query("SELECT SUM(nominal) AS jml FROM hutang_reseller_bayar WHERE id_res='$id_res2'")->row("jml");
+    $nama_res = $cek_res->row('nama_distributor');
+    $id_dis = $cek_res->row('id_dis');
+    $ary = $this->db->query("SELECT SUM(nilai_tagihan) AS jml FROM stok_produk_keluar WHERE nama_tujuan='$nama_res' AND tujuan='Agen'")->row("jml");
+    $nilai_bayar = $this->db->query("SELECT SUM(nominal_bayar) AS jml FROM hutang_agen_bayar WHERE nama_agen='$nama_res'")->row("jml");
     $outstanding = floatval($ary) - floatval($nilai_bayar);
     $outstanding = number_format($outstanding,0,",",".");
     ?>
     <div class="loading-overlay" id="loading"><div class="loader"></div></div>
     <div class="container" style="display: none;" id="content">
         <h2 style="text-align: center; margin-bottom: 10px;">Data Tagihan</h2>
-        Nama Reseller : <strong><?=$nama_res;?></strong><br>
+        Nama Agen : <strong><?=$nama_res;?></strong><br>
         Outstanding : <strong>Rp. <?=$outstanding;?></strong><hr><br>
         <div class="table-container">
             <table class="table">
@@ -237,7 +237,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         function loadData() {
-            fetch('<?=base_url('reseller2/loadData/'.$uri);?>')
+            fetch('<?=base_url('reseller2/loadDataagen/'.$uri);?>')
                 .then(response => response.json())
                 .then(data => {
                     const tableBody = document.getElementById("data-body");
@@ -258,7 +258,7 @@
                     });
                     document.getElementById("loading").style.display = "none";
                     document.getElementById("content").style.display = "block";
-                    console.log('sampai this');
+                    //console.log('sampai this');
                 })
                 .catch(error => console.error('Error:', error));
         }

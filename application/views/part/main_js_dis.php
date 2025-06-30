@@ -41,7 +41,49 @@
 				}
 				});
 			}
+            function formatAngka(input) {
+				let value = input.value.replace(/\D/g, '');
+				value = value.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+				input.value = value;
+			}
+            function validateFile(tipe) {
+				var fileInput = document.getElementById('upload');
+				var filePath = fileInput.value;
+				var maxFileSize = 5 * 1024 * 1024;
+				if(tipe=='image'){
+					var allowedExtensions = /(\.png|\.jpg|\.jpeg)$/i;
+					var txtx = 'Hanya file dengan format PNG dan JPG.';
+				} else {
+					var allowedExtensions = /(\.png|\.jpg|\.jpeg|\.doc|\.docx|\.xls|\.xlsx|\.pdf)$/i;
+					var txtx = 'Hanya file dengan format PNG, JPG, DOC, XLSX, atau PDF yang diperbolehkan.';
+				}
 
+				if (!allowedExtensions.exec(filePath)) {
+					Swal.fire({
+						icon: 'error',
+						title: 'Format File Tidak Sesuai!',
+						text: ''+txtx+'',
+					});
+					// Hapus nilai input file
+					fileInput.value = '';
+					return false;
+				}
+				if (fileInput.files[0].size > maxFileSize) {
+					Swal.fire({
+						icon: 'error',
+						title: 'Ukuran File Terlalu Besar!',
+						text: 'File tidak boleh lebih dari 2MB.',
+					});
+					// Hapus nilai input file
+					fileInput.value = '';
+					return false;
+				}
+			}
+            function copythis(url) {
+                navigator.clipboard.writeText(url)
+                    .then(() => Swal.fire({title: "Good job!",text: "URL copied to clipboard",icon: "success"}))
+                    .catch(err => Swal.fire({title: "Sorry",text: "URL could not be copied",icon: "error"}));
+            }
 		</script>
 		<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NXZMQSS" height="0" width="0" style="display: none; visibility: hidden"></iframe></noscript>
 	</body>

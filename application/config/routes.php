@@ -87,8 +87,10 @@ $route['save-stokin-produk'] = 'proses/saveprodukmasuk';
 
 $route['update-kode'] = 'proses/updatekodeproduk';
 $route['save-reseller-bayar'] = 'proses2/savebayarresel';
+$route['save-agen-bayar'] = 'proses2/savebayaragen';
 $route['reseller/tagihan/nota/(:any)'] = 'beranda/reseller2';
 $route['reseller/data/tagihan/(:any)'] = 'reseller2/datas';
+$route['agen/data/tagihan/(:any)'] = 'reseller2/datasagen';
 
 $route['tabel-harga'] = 'newtable/hargabarang';
 

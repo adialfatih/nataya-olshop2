@@ -694,6 +694,52 @@ class Proses2 extends CI_Controller
             redirect(base_url('reseller'));
         }
     } //end
+    function savebayaragen(){
+        $this->load->library('upload');
+        $nmReseller = $this->input->post('nmReseller');
+        $idReseller = $this->input->post('idReseller');
+        //$sjBayar = $this->input->post('sjBayar');
+        $tglinput = date('Y-m-d H:i:s');
+        $tglBayar = $this->input->post('tglBayar');
+        $jnsBayar = $this->input->post('jnsBayar');
+        $jmlBayar = preg_replace('/[^0-9]/', '', $this->input->post('jmlBayar'));
+
+        $config['upload_path'] = './uploads/';
+        $config['allowed_types'] = 'png|jpg|jpeg';
+        $config['max_size'] = 6048; // Batas ukuran file 2 MB
+        $config['encrypt_name'] = TRUE; // Supaya nama file terenkripsi
+        $config['file_ext_tolower'] = TRUE; // Ekstensi file menjadi huruf kecil
+        // Inisiasi konfigurasi upload
+        $this->upload->initialize($config);
+
+        if (!$this->upload->do_upload('upload')) {
+            $error = array('error' => $this->upload->display_errors());
+            $uploadan = "null";
+        } else {
+            // Jika upload berhasil, tampilkan data file
+            $data = array('upload_data' => $this->upload->data());
+            $uploadan = $data['upload_data']['file_name'];
+        }
+        $dtlist = [
+            'nama_agen' => $nmReseller,
+            'nominal_bayar' => $jmlBayar,
+            'tgl_bayar' => $tglinput,
+            'yg_input' => $this->session->userdata('username'),
+            'tgl_input' => date('Y-m-d H:i:s'),
+            'bukti_bayar' => $uploadan,
+            'jenis_bayar' => $jnsBayar
+        ];
+        $cek = $this->data_model->get_byid('hutang_agen_bayar', $dtlist)->num_rows();
+        if($cek==0){
+            $this->data_model->saved('hutang_agen_bayar', $dtlist);
+            $this->session->set_flashdata('sukses', 'Berhasil menyimpan data pembayaran agen '.$nmReseller.'');
+            $this->session->set_flashdata('open_hutang_tab', base_url('hutang-agen/' . $idReseller));
+            redirect(base_url('distributor'));
+        } else {
+            $this->session->set_flashdata('gagal', 'Gagal menyimpan pembayaran!!');
+            redirect(base_url('distributor'));
+        }
+    } //end
     function lihatbayar(){
         $id = $this->input->post('id', TRUE);
         $name = $this->input->post('name', TRUE);

@@ -217,7 +217,7 @@
                                                 </select>
                                                 <label for="upload" style="margin-top:10px;">Upload Bukti Pembayaran</label>
                                                 <input class="form-control" name="upload" id="upload" type="file" onchange="validateFile('image')" />
-                                                <small>Masukan bukti foto surat jalan. Ekstensi: JPG, PNG</small>
+                                                <small>Masukan bukti foto pembayaran. Ekstensi: JPG, PNG</small>
                                             </div>
 											<div class="modal-footer">
 												<button type="button" class="btn btn-default" data-dismiss="modal">

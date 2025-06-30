@@ -17,6 +17,9 @@ class Reseller2 extends CI_Controller
   function datas(){ 
     $this->load->view('view_reseller_html');
   } //end
+  function datasagen(){ 
+    $this->load->view('view_agen_html');
+  } //end
   function cekRes2(){
         $ty = $this->data_model->get_record('stok_produk_keluar_barang');
         foreach($ty->result() as $val){
@@ -48,7 +51,78 @@ class Reseller2 extends CI_Controller
         $sisa_bayar = $nilai_bayar;
         $outstanding = 0;
         $data = array();
-        $ary = $this->db->query("SELECT * FROM stok_produk_keluar WHERE nama_tujuan='$res' AND tujuan='Reseller' ORDER BY tgl_out");
+        $ary = $this->db->query("SELECT * FROM stok_produk_keluar WHERE nama_tujuan='$res' AND tujuan='Reseller' AND shide='view' ORDER BY tgl_out");
+        if($ary->num_rows() > 0){
+            $no=1;
+            foreach($ary->result() as $val){
+                $id_outstok = $val->id_outstok;
+                $view = $val->shide;
+                $tgl = date('d M Y', strtotime($val->tgl_out));
+                $nilai_tagihan = floatval($val->nilai_tagihan);
+                if($sisa_bayar > 0){
+                    if($sisa_bayar >= $nilai_tagihan){
+                        $this->data_model->updatedata('id_outstok',$id_outstok,'stok_produk_keluar',['status_lunas'=>'Lunas']);
+                        $_jmlBayar = number_format($nilai_tagihan,0,",",".");
+                        $_jmlSisa = 0;
+                        $outstanding = $outstanding + $_jmlSisa;
+                        $_lunas = "<span class='badge badge-success'>Lunas</span>";
+                        $_lunas2 = "Lunas";
+                        $sisa_bayar = $sisa_bayar - $nilai_tagihan;
+                    } else {
+                        $this->data_model->updatedata('id_outstok',$id_outstok,'stok_produk_keluar',['status_lunas'=>'Belum Lunas']);
+                        $_jmlBayar = number_format($sisa_bayar,0,",",".");
+                        $_jmlSisa2 = $nilai_tagihan - $sisa_bayar;
+                        $outstanding = $outstanding + $_jmlSisa2;
+                        $_jmlSisa = number_format($_jmlSisa2,0,",",".");
+                        $_lunas = "<span class='badge badge-danger'>Belum Lunas</span>";
+                        $_lunas2 = "Belum Lunas";
+                        $sisa_bayar = 0;
+                    }
+                } else {
+                    $_jmlBayar = 0;
+                    $_jmlSisa2 = $nilai_tagihan - $_jmlBayar;
+                    $outstanding = $outstanding + $_jmlSisa2;
+                    $_jmlSisa = number_format($_jmlSisa2,0,",",".");
+                    $_lunas = "<span class='badge badge-danger'>Belum Lunas</span>";
+                    $_lunas2 = "Belum Lunas";
+                }
+                // if($no!=1){ echo ","; }
+                // echo "{ no: '".$no++."', nama: '".$val->nama_tujuan."', no_sj: '".$val->no_sj."', tgl: '".$tgl."', nilai_tagihan: '".number_format($val->nilai_tagihan,0,",",".")."', jml_bayar: '".$_jmlBayar."', jml_sisa: '".$_jmlSisa."', lunas: '".$_lunas2."' }";
+                // echo "<br>";
+                if($view=="view"){
+                $data[] = [
+                    "no" => $no++,
+                    "nama" => $val->nama_tujuan,
+                    "no_sj" => $val->no_sj,
+                    "tgl" => $tgl,
+                    "nilai_tagihan" => number_format($val->nilai_tagihan,0,",","."),
+                    "jml_bayar" => $_jmlBayar,
+                    "jml_sisa" => $_jmlSisa,
+                    "lunas" => $_lunas2
+                ];
+                }
+            }
+            echo json_encode($data);
+        } else {
+            echo json_encode(array("statusCode"=>400, "psn"=>"232!"));
+        }
+    } else {
+        echo json_encode(array("statusCode"=>400, "psn"=>"234"));
+    }
+  } //end
+  function loadDataagen(){
+    $uri = $this->uri->segment(3);
+    $cek_res = $this->data_model->get_byid('data_distributor', ['sha1(id_dis)'=>$uri]);
+    if($cek_res->num_rows() == 1){
+        $id_res2 = $cek_res->row('id_dis');
+        //$nama_res = $cek_res->row('nama_distributor');
+        $res = $cek_res->row('nama_distributor');
+        $nilai_bayar = $this->db->query("SELECT SUM(nominal_bayar) AS jml FROM hutang_agen_bayar WHERE nama_agen='$res'")->row("jml");
+        //$nilai_bayar = 20000000;
+        $sisa_bayar = $nilai_bayar;
+        $outstanding = 0;
+        $data = array();
+        $ary = $this->db->query("SELECT * FROM stok_produk_keluar WHERE nama_tujuan='$res' AND tujuan='Agen' AND shide='view' ORDER BY tgl_out");
         if($ary->num_rows() > 0){
             $no=1;
             foreach($ary->result() as $val){
@@ -174,6 +248,12 @@ class Reseller2 extends CI_Controller
             echo "Surat Jalan <strong>".$id."</strong> Tidak ditemukan atau sudah di hapus.!!";
         }
         
+  }
+
+  function sembunyikansj(){
+        $sj = $this->input->post('sj', TRUE);
+        $this->data_model->updatedata('no_sj',$sj,'stok_produk_keluar', ['shide'=>'hide']);
+        echo json_encode(array("statusCode"=>200, "psn"=>"oke"));
   }
 
 }

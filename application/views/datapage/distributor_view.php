@@ -23,11 +23,12 @@
 							</div>
                             <?php if($sess_akses=="Super"){?>
 							<div class="col-md-6 col-sm-12 text-right">
-								<div class="dropdown">
-									<a class="btn btn-success" href="javascript:void(0);" onclick="changeadd()" role="button" data-toggle="modal" data-target="#modals">
+								<a class="btn btn-success" href="javascript:void(0);" onclick="changeadd()" role="button" data-toggle="modal" data-target="#modals">
 										+ Tambah Distributor
-									</a>
-								</div>
+								</a>
+                                <a class="btn btn-warning" href="javascript:void(0);" data-toggle="modal" data-target="#mod">
+										Rekap Setoran
+								</a>
 							</div>
                             <?php } ?>
 						</div>
@@ -82,21 +83,22 @@
                                         $id = $val->id_dis;
                                         $shaid = sha1($id);
                                         $nmdis = $val->nama_distributor;
-                                        $nota  = $this->db->query("SELECT COUNT(id_outstok) AS jml, SUM(nilai_tagihan) AS total FROM stok_produk_keluar WHERE nama_tujuan = '$nmdis' AND tujuan='Agen' AND status_lunas = 'Belum Lunas'")->row_array();
+                                        $nota1  = $this->db->query("SELECT COUNT(id_outstok) AS jml FROM stok_produk_keluar WHERE nama_tujuan = '$nmdis' AND tujuan='Agen' AND status_lunas = 'Belum Lunas'")->row("jml");
+                                        $nota2  = $this->db->query("SELECT SUM(nilai_tagihan) AS total FROM stok_produk_keluar WHERE nama_tujuan = '$nmdis' AND tujuan='Agen'")->row("total");
                                         $bayarr  = $this->db->query("SELECT SUM(nominal_bayar) AS total FROM hutang_agen_bayar WHERE nama_agen = '$nmdis' ")->row("total");
-                                        $sisa_hutang = $nota['total'] - $bayarr;
-                                        $_ttl_nota += $nota['jml'];
-                                        $_ttl_htg += $nota['total'];
+                                        $sisa_hutang = $nota2 - $bayarr;
+                                        $_ttl_nota += $nota1;
+                                        $_ttl_htg += $nota2;
                                         $_ttl_byr += $bayarr;
                                         $_ttl_sisa += $sisa_hutang;
                                     ?>
                                     <tr>
                                         <td><?=$no;?></td>
                                         <td><?=$nmdis;?></td>
-                                        <td><?=$nota['jml']<1 ? '-':'<font style="color:red;">'.$nota['jml'].'</font>';?></td>
-                                        <td><?=$nota['total']<1 ? '-':'Rp. '.number_format($nota['total'],0,',','.');?></td>
+                                        <td><?=$nota1<1 ? '-':'<font style="color:red;">'.$nota1.'</font>';?></td>
+                                        <td><?=$nota2<1 ? '-':'Rp. '.number_format($nota2,0,',','.');?></td>
                                         <td><?=$bayarr<1 ? '-':'Rp. '.number_format($bayarr,0,',','.');?></td>
-                                        <td><?=$sisa_hutang<1 ? '-':'Rp. '.number_format($sisa_hutang,0,',','.');?></td>
+                                        <td><?=$sisa_hutang<1 ? '<label class="badge badge-success" style="margin:0;">Lunas</label>':'Rp. '.number_format($sisa_hutang,0,',','.');?></td>
                                         
                                         <td>
                                             <div class="dropdown">
@@ -105,7 +107,7 @@
                                                 </a>
                                                 <div class="dropdown-menu dropdown-menu-right dropdown-menu-icon-list">
                                                     <a class="dropdown-item" href="<?=base_url('hutang-agen/'.$shaid.'');?>"><i class="dw dw-search"></i> View</a>
-                                                    <a class="dropdown-item" href="javascript:void(0);">
+                                                    <a class="dropdown-item" href="javascript:void(0);" onclick="bayarAgen('<?=$val->nama_distributor;?>','<?=$shaid;?>')" data-toggle="modal" data-target="#modals2">
                                                         <i class="dw dw-add"></i> Input Pembayaran
                                                     </a>
                                                     <a class="dropdown-item" href="javascript:void(0);" onclick="edit('<?=$id;?>','<?=$val->nama_distributor;?>','<?=$val->notelp;?>','<?=$val->alamat;?>')" data-toggle="modal" data-target="#modals">
@@ -124,7 +126,7 @@
                                         echo "<tr>";
                                         echo "<td colspan='2'><strong>Total</strong></td>";
                                         echo "<td><strong>".$_ttl_nota."</strong></td>";
-                                        echo "<td><strong>rp. ".number_format($_ttl_htg,0,',','.')."</strong></td>";
+                                        echo "<td><strong>Rp. ".number_format($_ttl_htg,0,',','.')."</strong></td>";
                                         echo "<td><strong>Rp. ".number_format($_ttl_byr,0,',','.')."</strong></td>";
                                         echo "<td><strong>Rp. ".number_format($_ttl_sisa,0,',','.')."</strong></td>";
                                         echo "<td></td>";
@@ -171,6 +173,53 @@
 										</div>
 									</div>
 								</div>
+                                <div class="modal fade" id="modals2" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+									<div class="modal-dialog modal-dialog-centered">
+										<div class="modal-content">
+											<div class="modal-header">
+												<h4 class="modal-title" id="myLargeModalLabel">
+													Pembayaran Agen
+												</h4>
+												<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+													×
+												</button>
+											</div>
+                                            <?php echo form_open_multipart('save-agen-bayar'); ?>
+                                            <input type="hidden" name="idReseller" value="0" id="idReseller">
+											<div class="modal-body" id="modalBodyid">
+                                                <label for="nmReseller">Nama Agem</label>
+                                                <input type="text" id="nmReseller" name="nmReseller" class="form-control" readonly>
+                                                <!-- <label for="sjBayar" style="margin-top:10px;">Pembayaran Surat Jalan</label>
+                                                <select name="sjBayar" class="form-control" id="sjBayar" onchange="cekbyrnominal(this.value)" required>
+                                                    <option value="">Pilih Surat Jalan Pembayaran</option>
+                                                </select> -->
+                                                <label for="tglBayar" style="margin-top:10px;">Tanggal Pembayaran</label>
+                                                <input type="date" id="tglBayar" name="tglBayar" class="form-control" value="<?=date('Y-m-d');?>" required>
+                                                <label for="jmlBayar" style="margin-top:10px;">Jumlah Pembayaran</label>
+                                                <input type="text" id="jmlBayar" oninput="formatAngka(this)" name="jmlBayar" class="form-control" placeholder="Masukan Nomor Nominal" required>
+                                                <label for="jnsBayar" style="margin-top:10px;">Jenis Pembayaran</label>
+                                                <select name="jnsBayar" class="form-control" id="jnsBayar">
+                                                    <option value="">Pilih Jenis Pembayaran</option>
+                                                    <option value="Tunai">Tunai</option>
+                                                    <option value="Transfer">Transfer</option>
+                                                    <option value="Virtual Account">Virtual Account</option>
+                                                </select>
+                                                <label for="upload" style="margin-top:10px;">Upload Bukti Pembayaran</label>
+                                                <input class="form-control" name="upload" id="upload" type="file" onchange="validateFile('image')" />
+                                                <small>Masukan bukti / foto pembayaran. Ekstensi: JPG, PNG</small>
+                                            </div>
+											<div class="modal-footer">
+												<button type="button" class="btn btn-default" data-dismiss="modal">
+													Close
+												</button>
+                                                <button type="submit" class="btn btn-primary">
+													Simpan Data
+												</button>
+											</div>
+                                            <?php echo form_close(); ?>
+										</div>
+									</div>
+								</div>
                                 
                 </div>
 				
@@ -188,5 +237,9 @@
         document.getElementById('idtipe').value = ''+id;
         document.getElementById('nowa').value = ''+no;
         document.getElementById('almt').value = ''+al;
+    }
+    function bayarAgen(nama,id){
+        document.getElementById('idReseller').value = ''+id;
+        document.getElementById('nmReseller').value = ''+nama;
     }
 </script>

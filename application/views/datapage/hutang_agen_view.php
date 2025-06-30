@@ -24,13 +24,16 @@
 									</ol>
 								</nav>
 							</div>
-                            
+                            <?php
+                            $url = base_url('agen/data/tagihan/'.sha1($agen['id_dis']));
+                            ?>
 							<div class="col-md-6 col-sm-12 text-right">
-								<div class="dropdown">
-									<a class="btn btn-success" href="javascript:void(0);" onclick="changeadd()">
-										<i class="bi bi-share"></i>&nbsp; Share Url
-									</a>
-								</div>
+								<a class="btn btn-success" href="javascript:void(0);" onclick="copythis('<?=$url;?>')">
+									<i class="bi bi-share"></i>&nbsp; Share URL
+								</a>
+                                <a class="btn btn-secondary" href="javascript:void(0);">
+									<i class="bi bi-list"></i>&nbsp; Riwayat Pembayaran
+								</a>
 							</div>
 						</div>
 					</div>
@@ -55,11 +58,14 @@
                                         "</div></div>";
                             }
                             //echo $sess_akses;
+                            $dis = $agen['nama_distributor'];
+                            $total_bayar = $this->db->query("SELECT SUM(nominal_bayar) AS jml FROM hutang_agen_bayar WHERE nama_agen='$dis'")->row("jml");
                         ?>
                     
 					<!-- Simple Datatable start -->
 					<div class="card-box mb-30">
 						<div class="pd-20 table-responsive">
+                            <p style="font-size:20px;">Outstanding = <span id="tesOutStanding">Rp. 0</span></p>
 							<table class="table table-bordered stripe hover nowrap">
 								<thead>
 									<tr>
@@ -69,10 +75,55 @@
 										<th>Tagihan</th>
 										<th>Pembayaran</th>
 										<th>Sisa Hutang</th>
+										<th>Keterangan</th>
 									</tr>
 								</thead>
 								<tbody>
-                                    
+                                    <?php
+                                    if($data_hutang->num_rows() > 0){
+                                        $nilai_bayar = $total_bayar;
+                                        $hutang_semuanya = 0;
+                                        foreach($data_hutang->result() as $n => $val){
+                                        $id = $val->id_outstok;
+                                        if($nilai_bayar >= $val->nilai_tagihan){
+                                            $nilai_bayar -= $val->nilai_tagihan;
+                                            $show_bayar = $val->nilai_tagihan;
+                                        } else {
+                                            $show_bayar = $nilai_bayar;
+                                            $nilai_bayar = 0;
+                                        }
+                                        $sisa_tagihan = $val->nilai_tagihan - $show_bayar;
+                                        $hutang_semuanya += $sisa_tagihan;
+                                    ?>
+                                    <tr>
+                                        <td><?=$n + 1;?></td>
+                                        <td><?=$val->no_sj;?></td>
+                                        <td><?=date('d M Y',strtotime($val->tgl_out));?></td>
+                                        <td>Rp. <?=number_format($val->nilai_tagihan,0,",",".");?></td>
+                                        <td>Rp. <?=number_format($show_bayar,0,",",".");?></td>
+                                        <td>Rp. <?=number_format($sisa_tagihan,0,",",".");?></td>
+                                        <td>
+                                        <?php
+                                            if($sisa_tagihan > 0){
+                                                echo '<label class="badge badge-danger" style="margin:0;">Belum Lunas</label>';
+                                                $this->data_model->updatedata('id_outstok',$id,'stok_produk_keluar',['status_lunas'=>'Belum Lunas']);
+                                            } else {
+                                                echo '<label class="badge badge-success" style="margin:0;">Lunas</label>';
+                                                $this->data_model->updatedata('id_outstok',$id,'stok_produk_keluar',['status_lunas'=>'Lunas']);
+                                            }
+                                        ?>
+                                        </td>
+                                    </tr>
+                                    <?php
+                                        }
+                                    } else {
+                                        ?>
+                                    <tr>
+                                        <td colspan="6">Tidak ada data hutang agen <strong><?=$agen['nama_distributor'];?></strong></td>
+                                    </tr>
+                                        <?php
+                                    }
+                                    ?>
                                 </tbody>
 							</table>
 						</div>
@@ -116,3 +167,6 @@
 				
 			</div>
 		</div>
+<script>
+    document.getElementById('tesOutStanding').innerHTML = 'Rp. <strong><?=number_format($hutang_semuanya,0,",",".");?></strong>';
+</script>
